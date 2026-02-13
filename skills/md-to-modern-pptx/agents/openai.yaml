@@ -1,0 +1,3 @@
+interface:
+  display_name: "MD → Modern PPTX"
+  short_description: "把 Markdown 生成精美 PPTX（主题+脚本+QA）"

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GitHub 今日简报（{{date}}）</title>
+    <style>
+      :root{
+        color-scheme: light dark;
+        --bg: #0b0f14;
+        --panel: #0f1620;
+        --text: #e6edf3;
+        --muted: #9aa7b2;
+        --border: #223040;
+        --link: #6cb6ff;
+        --link-visited: #b392f0;
+        --focus: #f2cc60;
+        --max: 980px;
+      }
+      @media (prefers-color-scheme: light){
+        :root{
+          --bg: #ffffff;
+          --panel: #f6f8fa;
+          --text: #1f2328;
+          --muted: #57606a;
+          --border: #d0d7de;
+          --link: #0969da;
+          --link-visited: #8250df;
+          --focus: #b08800;
+        }
+      }
+      *{ box-sizing: border-box; }
+      body{
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+      }
+      a{ color: var(--link); text-underline-offset: 0.2em; }
+      a:visited{ color: var(--link-visited); }
+      a:focus-visible{
+        outline: 3px solid var(--focus);
+        outline-offset: 3px;
+        border-radius: 6px;
+      }
+      .skip{
+        position: absolute;
+        left: -999px;
+        top: 0;
+        padding: 10px 12px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        color: var(--text);
+      }
+      .skip:focus{ left: 12px; top: 12px; z-index: 10; }
+      header{
+        border-bottom: 1px solid var(--border);
+        background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0));
+      }
+      .wrap{ max-width: var(--max); margin: 0 auto; padding: 20px 16px; }
+      h1{ margin: 0 0 6px; font-size: 1.6rem; }
+      .meta{ margin: 0; color: var(--muted); font-size: 0.95rem; }
+      main{ padding: 16px 0 30px; }
+      section{ margin-top: 18px; }
+      h2{ margin: 0 0 10px; font-size: 1.25rem; }
+      .list{ list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+      .card{
+        border: 1px solid var(--border);
+        background: color-mix(in srgb, var(--panel) 86%, transparent);
+        border-radius: 12px;
+        padding: 12px 12px;
+      }
+      .title{
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 10px;
+        align-items: baseline;
+        margin: 0 0 6px;
+      }
+      .repo{
+        font-weight: 650;
+        font-size: 1.05rem;
+      }
+      .badges{
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+      .badge{
+        padding: 2px 8px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--panel) 70%, transparent);
+      }
+      .blurb{ margin: 0; }
+      footer{
+        border-top: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 0.92rem;
+        padding: 18px 0 26px;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip" href="#content">跳到正文</a>
+    <header>
+      <div class="wrap">
+        <h1>GitHub 今日简报（{{date}}）</h1>
+        <p class="meta">数据口径：Trending（Today）与 Search（created:{{date}}，按 Stars 排序，第一页）。</p>
+      </div>
+    </header>
+
+    <main id="content" class="wrap">
+      <section aria-labelledby="trending">
+        <h2 id="trending">GitHub Trending（Today）Top {{trending_count}}</h2>
+        <ul class="list">
+          {{trending_items_html}}
+        </ul>
+      </section>
+
+      <section aria-labelledby="new">
+        <h2 id="new">今日新建仓库（created:{{date}}，按 Stars）Top {{new_count}}</h2>
+        <ul class="list">
+          {{new_items_html}}
+        </ul>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap">生成说明：每条项目含 80–120 字中文总结（含“我的看法/建议”）。</div>
+    </footer>
+  </body>
+</html>
+

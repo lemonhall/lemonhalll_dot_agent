@@ -1,0 +1,97 @@
+{
+  "version": 3,
+  "skills": {
+    "deep-research": {
+      "source": "Shubhamsaboo/awesome-llm-apps",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/Shubhamsaboo/awesome-llm-apps.git",
+      "skillPath": "awesome_agent_skills/deep-research/SKILL.md",
+      "skillFolderHash": "e81c0bc308c9d5d9b1a9ecaa3acd7ff515e1126b",
+      "installedAt": "2026-02-10T02:57:21.860Z",
+      "updatedAt": "2026-02-10T02:57:21.860Z"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/skills.git",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "skillFolderHash": "c2f31172b6f256272305a5e6e7228b258446899f",
+      "installedAt": "2026-02-10T02:57:38.291Z",
+      "updatedAt": "2026-02-10T02:57:38.291Z"
+    },
+    "skill-creator": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/skill-creator/SKILL.md",
+      "skillFolderHash": "a01fbe3fa7f17f64173bd4fdcfecea86a3fd664c",
+      "installedAt": "2026-02-10T13:44:14.828Z",
+      "updatedAt": "2026-02-10T13:44:14.828Z"
+    },
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-skills.git",
+      "skillPath": "skills/web-design-guidelines/SKILL.md",
+      "skillFolderHash": "3116f3e62dbd02b44a598b1aa690d2a8938e8f89",
+      "installedAt": "2026-02-11T00:23:22.958Z",
+      "updatedAt": "2026-02-11T00:23:22.958Z"
+    },
+    "vercel-composition-patterns": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-skills.git",
+      "skillPath": "skills/composition-patterns/SKILL.md",
+      "skillFolderHash": "bf90d0a4b83ea054653350f9c67f6de235d3a368",
+      "installedAt": "2026-02-11T00:23:49.408Z",
+      "updatedAt": "2026-02-11T00:23:49.408Z"
+    },
+    "agent-browser": {
+      "source": "vercel-labs/agent-browser",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-browser.git",
+      "skillPath": "skills/agent-browser/SKILL.md",
+      "skillFolderHash": "534183ba408692754ff5470166200d672209e96c",
+      "installedAt": "2026-02-11T00:24:19.222Z",
+      "updatedAt": "2026-02-11T00:24:19.222Z"
+    },
+    "md-to-pdf": {
+      "source": "steveclarke/dotfiles",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/steveclarke/dotfiles.git",
+      "skillPath": "ai/skills/md-to-pdf/SKILL.md",
+      "skillFolderHash": "936f132fe99f17b9310c882bcff2b6bf9e4b4bbb",
+      "installedAt": "2026-02-11T01:46:31.486Z",
+      "updatedAt": "2026-02-11T01:46:31.486Z"
+    },
+    "pptx": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/pptx/SKILL.md",
+      "skillFolderHash": "10b3d70962e489867ddfee7da92f7da6b0eccc4f",
+      "installedAt": "2026-02-11T02:37:25.477Z",
+      "updatedAt": "2026-02-11T02:37:25.477Z"
+    },
+    "theme-factory": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/theme-factory/SKILL.md",
+      "skillFolderHash": "007940e80de6ae577a87b2b343b1a5eae715df2b",
+      "installedAt": "2026-02-11T02:37:25.622Z",
+      "updatedAt": "2026-02-11T02:37:25.622Z"
+    }
+  },
+  "dismissed": {
+    "findSkillsPrompt": true
+  },
+  "lastSelectedAgents": [
+    "amp",
+    "codex",
+    "gemini-cli",
+    "github-copilot",
+    "kimi-cli",
+    "opencode"
+  ]
+}
