@@ -31,16 +31,16 @@ A small, repeatable checklist for releasing a Python package to PyPI with minima
    - Update `pyproject.toml` `[project].version`
    - (Recommended) Read old/new version explicitly, then update any mirrors (if your project has them):
      - Read current version:
-       - `python -c "import tomllib; from pathlib import Path; print(tomllib.loads(Path('pyproject.toml').read_bytes())['project']['version'])"`
+       - `python -c "import tomllib; from pathlib import Path; f=Path('pyproject.toml').open('rb'); print(tomllib.load(f)['project']['version']); f.close()"`
      - After editing `pyproject.toml`, re-check:
-       - `python -c "import tomllib; from pathlib import Path; print(tomllib.loads(Path('pyproject.toml').read_bytes())['project']['version'])"`
+       - `python -c "import tomllib; from pathlib import Path; f=Path('pyproject.toml').open('rb'); print(tomllib.load(f)['project']['version']); f.close()"`
      - Search for common mirrors (adjust patterns per repo conventions):
        - Prefer a clean PowerShell-friendly command (single quotes; no extra escaping):
          - `rg -n -i '__version__\s*=|^version\s*=|setuptools_scm'`
        - If you want case-sensitive matches, drop `-i` and write explicit variants:
          - `rg -n '__version__\s*=|^version\s*=|VERSION\s*=|setuptools_scm'`
      - If you must replace a specific old version string:
-       - `rg -n \"<OLD_VERSION>\" -S` (replace `<OLD_VERSION>` with the previous version)
+       - `rg -n '<OLD_VERSION>'` (replace `<OLD_VERSION>` with the previous version)
 
 3) Run unit tests (must be green)
    - `python -m unittest -q`
@@ -55,14 +55,24 @@ A small, repeatable checklist for releasing a Python package to PyPI with minima
    - Recommended (clean folder → create → build):
      - `$ver = "<VERSION>"   # replace with the actual version`
      - `$outDir = ".release_dist\\$ver"`
-     - `if (Test-Path $outDir) { Write-Warning "About to delete: $outDir (confirm path!)"; Remove-Item -Recurse -Force $outDir }`
+     - If the folder already exists, delete it first (interactive confirm for safety):
+       - `if (Test-Path $outDir) { Remove-Item -Recurse -Force $outDir -Confirm }`
      - `New-Item -ItemType Directory -Force $outDir | Out-Null`
      - `python -m build --outdir $outDir`
+   - (Recommended) Add build outputs to `.gitignore`:
+     - `.release_dist/`
 
 6) Validate artifacts
    - `python -m twine check .release_dist\\<VERSION>\\*`
 
-7) Upload (non-interactive; explicit config file)
+7) Commit + Tag (recommended; do this before upload)
+   - After bumping version (and updating mirrors) and validating artifacts, commit and tag so the published artifacts map cleanly to a VCS state:
+     - `git add pyproject.toml` (and any other version mirror files)
+     - `git commit -m "release: v<VERSION>"`
+     - `git tag v<VERSION>`
+     - `git push origin HEAD --tags`
+
+8) Upload (non-interactive; explicit config file)
    - If using repo-local `.pypirc`:
      - `python -m twine upload --non-interactive --config-file .pypirc -r pypi .release_dist\\<VERSION>\\*`
      - Notes:
@@ -73,10 +83,13 @@ A small, repeatable checklist for releasing a Python package to PyPI with minima
    - If using env vars instead:
      - `$env:TWINE_USERNAME="__token__" ; $env:TWINE_PASSWORD="pypi-..." ; python -m twine upload --non-interactive -r pypi .release_dist\\<VERSION>\\*`
 
-8) Verify the release exists on PyPI
+9) Verify the release exists on PyPI
    - Prefer checking `releases` by version (more reliable than filename prefix due to normalization differences):
      - `python -c "import json,urllib.request; d=json.load(urllib.request.urlopen('https://pypi.org/pypi/<DISTNAME>/json')); print('<VERSION>' in d.get('releases',{}))"`
    - Note: PyPI normalizes project names (PEP 503), e.g. `_`/`.` → `-`, and lowercasing. Query using the normalized name if needed.
+   - Proxy tip (optional): if your network requires a proxy, set `$env:HTTP_PROXY` / `$env:HTTPS_PROXY` first; `urllib` will typically honor these env vars.
+   - Alternative using `curl.exe` (often easier to route via system proxy):
+     - `curl.exe -s "https://pypi.org/pypi/<DISTNAME>/json" | python -c 'import sys,json; d=json.load(sys.stdin); print("<VERSION>" in d.get("releases",{}))'`
 
 ## Minimal `.pypirc` Template (repo-local)
 
@@ -95,8 +108,10 @@ password = pypi-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 Security notes:
 - Treat `.pypirc` as a secret if it contains a token/password; add it to `.gitignore` and never commit it.
-- Quick guard (adds `.pypirc` to `.gitignore` if missing):
-  - `if (-not (Test-Path .gitignore)) { New-Item -ItemType File -Force .gitignore | Out-Null } ; if (-not (Select-String -Path .gitignore -Pattern '^\s*\.pypirc\s*$' -Quiet)) { Add-Content .gitignore "`n.pypirc" }`
+- Quick guard (adds `.pypirc` / `.release_dist/` to `.gitignore` if missing):
+  - `if (-not (Test-Path .gitignore)) { New-Item -ItemType File -Force .gitignore | Out-Null }`
+  - `if (-not (Select-String -Path .gitignore -Pattern '^\s*\.pypirc\s*$' -Quiet -ErrorAction SilentlyContinue)) { Add-Content .gitignore "`n.pypirc" }`
+  - `if (-not (Select-String -Path .gitignore -Pattern '^\s*\.release_dist\/\s*$' -Quiet -ErrorAction SilentlyContinue)) { Add-Content .gitignore "`n.release_dist/" }`
 - Prefer environment variables or a secret manager in CI.
 - For CI releases, consider PyPI Trusted Publishers (OIDC) to avoid storing long-lived tokens.
 
@@ -107,15 +122,6 @@ Security notes:
   - If PyPI returns `400 File already exists`, you cannot overwrite; fix and **bump the version**.
   - If it failed before any file reached PyPI (network/auth/etc.), you can usually fix and retry the same version.
 - `dist/` 里残留旧包：建议输出到 `.release_dist/<VERSION>/`，或上传前先清空 `dist/`。
-
-## Optional (Strongly Recommended): Commit + Tag
-
-After bumping version (and updating mirrors) and before uploading, commit and tag so the published artifacts map cleanly to a VCS state:
-
-- `git add pyproject.toml`
-- `git commit -m "release: v<VERSION>"`
-- `git tag v<VERSION>`
-- `git push origin HEAD --tags`
 
 ## Red Flags — STOP
 
