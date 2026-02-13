@@ -51,6 +51,89 @@ $env:HTTP_PROXY='http://127.0.0.1:7897' ; $env:HTTPS_PROXY='http://127.0.0.1:789
 
 更新后通常会变更 `skills/` 内容与 `.skill-lock.json`，建议一并提交以保证可复现。
 
+
+## 私人SKILL
+
+### agent-md-101
+
+为新仓库或 AI agent 入驻生成/重构 `AGENTS.md`，让多环境协作（Godot + SDK + demo apps）保持安全、可测、一致。
+
+```bash
+npx skills add https://github.com/lemonhall/lemonhalll_dot_agent --skill agent-md-101 -g -y --agent codex
+```
+
+### apn-pushtool
+
+本地 APNs 推送 CLI（`.env` 配置 + 可选 E2E 真推送），适用于 Windows 11 + PowerShell。
+
+```bash
+npx skills add https://github.com/lemonhall/lemonhalll_dot_agent --skill apn-pushtool -g -y --agent codex
+```
+
+### github-daily-brief
+
+每日 GitHub 趋势速报——热门仓库 + 当日新建仓库，输出中文摘要 + Markdown/HTML 文件。
+
+```bash
+npx skills add https://github.com/lemonhall/lemonhalll_dot_agent --skill github-daily-brief -g -y --agent codex
+```
+
+### greenflash-tab5
+
+M5Stack Tab5（ESP32-P4）固件刷写自动化——设备进入下载模式（"绿闪了"）后，一键 build → flash → boot → monitor 日志抓取循环。
+
+```bash
+npx skills add https://github.com/lemonhall/lemonhalll_dot_agent --skill greenflash-tab5 -g -y --agent codex
+```
+
+### md-to-modern-pptx
+
+Markdown → 精美 PPTX 幻灯片，内置主题调色板 + PptxGenJS 确定性生成 + markitdown QA 校验。
+
+```bash
+npx skills add https://github.com/lemonhall/lemonhalll_dot_agent --skill md-to-modern-pptx -g -y --agent codex
+```
+
+### meiju-acctl-home-comfort
+
+美的美居空调控制——当你说"太冷了/太热了"，agent 会共情回应并（经确认后）通过 `meiju-acctl` CLI 调节空调。
+
+```bash
+npx skills add https://github.com/lemonhall/lemonhalll_dot_agent --skill meiju-acctl-home-comfort -g -y --agent codex
+```
+
+### pypi-release-workflow
+
+Python 包发布到 PyPI 的可重复检查清单——版本号 bump → 测试 → 构建 → twine check/upload，Windows/PowerShell 友好。
+
+```bash
+npx skills add https://github.com/lemonhall/lemonhalll_dot_agent --skill pypi-release-workflow -g -y --agent codex
+```
+
+### spaghetti-refactor
+
+拆解"意大利面条"代码——当单文件/单类耦合了 UI、IO、状态、输入、游戏逻辑，尤其在 Godot 4.x 严格类型/warning-as-error 环境下，安全地逐步解耦。
+
+```bash
+npx skills add https://github.com/lemonhall/lemonhalll_dot_agent --skill spaghetti-refactor -g -y --agent codex
+```
+
+### tashan-development-loop
+
+塔山项目循环——PRD/Spec + 版本化执行计划（`docs/plan/vN-*`）+ 端到端验证，严格追溯链防止文档漂移与返工。
+
+```bash
+npx skills add https://github.com/lemonhall/lemonhalll_dot_agent --skill tashan-development-loop -g -y --agent codex
+```
+
+### watchdog-approvals
+
+Codex 审批持久化——把反复弹出的安全操作（跑测试、读日志、git 操作）写入 Codex 信任配置，后续会话不再重复确认。
+
+```bash
+npx skills add https://github.com/lemonhall/lemonhalll_dot_agent --skill watchdog-approvals -g -y --agent codex
+```
+
 ## 许可说明
 
 本仓库包含来自不同来源的第三方 skills；它们可能各自携带 `LICENSE.txt` 或在上游仓库声明许可。使用与分发时请遵守对应条款。
