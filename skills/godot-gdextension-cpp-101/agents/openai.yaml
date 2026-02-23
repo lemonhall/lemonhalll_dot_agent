@@ -1,0 +1,8 @@
+interface:
+  display_name: "Godot GDExtension C++ 101"
+  short_description: "Godot 4.x C++ GDExtension 引入闭环"
+  default_prompt: "Use $godot-gdextension-cpp-101 to add or fix a C++ GDExtension in this Godot 4.x project."
+
+policy:
+  allow_implicit_invocation: true
+
