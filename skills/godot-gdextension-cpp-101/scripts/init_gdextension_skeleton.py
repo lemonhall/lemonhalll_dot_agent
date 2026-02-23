@@ -1,5 +1,4 @@
 import argparse
-import os
 import re
 from pathlib import Path
 
@@ -12,7 +11,9 @@ def pascal_case(name: str) -> str:
     return "".join(p[:1].upper() + p[1:] for p in parts)
 
 
-def write_text(path: Path, text: str) -> None:
+def write_text(path: Path, text: str, *, force: bool) -> None:
+    if path.exists() and not force:
+        raise SystemExit(f"Refusing to overwrite existing file (pass --force): {path}")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8", newline="\n")
 
@@ -25,6 +26,7 @@ def main() -> int:
     ap.add_argument("--plugin-name", required=True, help="addons/<plugin-name>/ (e.g. jediterm).")
     ap.add_argument("--ext-name", required=True, help="Extension short name (used in filenames/symbols).")
     ap.add_argument("--godot-min", default="4.6.0", help="compatibility_minimum in .gdextension (default: 4.6.0).")
+    ap.add_argument("--force", action="store_true", help="Overwrite existing files if present.")
     args = ap.parse_args()
 
     project_root = Path(args.project_root).resolve()
@@ -73,6 +75,7 @@ library = env.SharedLibrary(
 
 Default(library)
 """,
+        force=args.force,
     )
 
     write_text(
@@ -90,6 +93,7 @@ windows.editor.x86_64 = "res://addons/{plugin_name}/bin/win64/{ext_name}.windows
 windows.template_debug.x86_64 = "res://addons/{plugin_name}/bin/win64/{ext_name}.windows.template_debug.x86_64.dll"
 windows.template_release.x86_64 = "res://addons/{plugin_name}/bin/win64/{ext_name}.windows.template_release.x86_64.dll"
 """,
+        force=args.force,
     )
 
     write_text(
@@ -115,6 +119,7 @@ public:
 
 }} // namespace godot
 """,
+        force=args.force,
     )
 
     write_text(
@@ -135,6 +140,7 @@ String {class_name}::ping() const {{
 
 }} // namespace godot
 """,
+        force=args.force,
     )
 
     write_text(
@@ -146,6 +152,7 @@ String {class_name}::ping() const {{
 void initialize_extension(godot::ModuleInitializationLevel p_level);
 void uninitialize_extension(godot::ModuleInitializationLevel p_level);
 """,
+        force=args.force,
     )
 
     write_text(
@@ -185,6 +192,7 @@ GDExtensionBool GDE_EXPORT {entry_symbol}(GDExtensionInterfaceGetProcAddress p_g
 
 }} // extern "C"
 """,
+        force=args.force,
     )
 
     (native_dir / "thirdparty").mkdir(parents=True, exist_ok=True)
@@ -203,4 +211,3 @@ GDExtensionBool GDE_EXPORT {entry_symbol}(GDExtensionInterfaceGetProcAddress p_g
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

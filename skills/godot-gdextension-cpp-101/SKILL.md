@@ -30,12 +30,16 @@ description: Use when a Godot 4.x project needs a C++ GDExtension (godot-cpp) ad
 
 ## Bundled Scripts（可选，但强烈推荐）
 
-这个 skill 自带了两个可复用脚本（在本 skill 目录下）：
+本 skill 自带脚本可直接复用（生成骨架 / Windows 构建闭环）。正式说明与示例命令见文末 **Scripts** 章节。
 
-- 生成最小骨架（创建 `native/` + `src/` + `SConstruct` + `.gdextension` + 一个可 `ping()` 的类）：
-  - `python scripts/init_gdextension_skeleton.py --project-root <godot-project> --plugin-name <plugin> --ext-name <ext>`
-- Windows 构建闭环（dump `extension_api.json` + 可选生成绑定 + scons 编译）：
-  - `pwsh -NoProfile -File scripts/build_gdextension_windows.ps1 -NativeDir <path-to-native> -GodotExe <path-to-godot-console.exe>`
+## 与仓库规约对齐（别抓瞎）
+
+在一个具体仓库里动手前，先找该仓库的 `AGENTS.md`（通常会写清楚）：
+
+- **Godot console exe 的路径/约定**：很多仓库会用环境变量 `GODOT_WIN_EXE` 保存本机 Godot 路径（示例：`E:\Godot_v4.6-stable_win64.exe\Godot_v4.6-stable_win64_console.exe`），并强调用 console 版跑 headless 测试更稳定。
+- **Headless 测试怎么跑**：不少仓库会提供包装脚本（例如 `scripts/run_godot_tests.ps1`）统一处理 `--headless`、超时、`user://` 重定向等细节。
+
+如果仓库里已经有“跑测试脚本/约定”，优先用它，不要让 agent 自己手拼一长串 Godot 参数。
 
 ## Repo Layout（推荐结构）
 
@@ -60,6 +64,43 @@ addons/<plugin_name>/
     win64/
       <ext>.windows.template_debug.x86_64.dll
 ```
+
+## Samples（建议作为插件交付的一等公民）
+
+当你交付的是 `addons/<plugin>/` 级别的插件时，**samples 往往比 README 更能让用户“验收成功”**：打开场景 → 点运行 → 看到效果。
+
+推荐把 samples 放在：`addons/<plugin>/samples/`（插件自包含，用户拷贝一个目录就能用）。
+
+### 目录结构（推荐）
+
+```
+addons/<plugin>/
+  samples/
+    scenes/
+      sample_smoke.tscn
+      sample_interactive.tscn
+    scripts/
+      sample_smoke.gd
+      sample_interactive.gd
+    assets/   # 可选：字体/贴图/主题等（尽量小）
+```
+
+### 人类可验收的 samples：实战技巧
+
+- **一个样例只证明一件事**：`sample_smoke` 只验证“能加载 + 能 new + 能调 1 个方法”；交互/渲染/PTY 放到 `sample_interactive`。
+- **失败要可读**：如果扩展未启用/加载失败，场景里用 `Label` 明确提示（同时 `push_error` 打日志），不要静默黑屏。
+- **兼容“未启用扩展”**：用 `ClassDB.class_exists("<NativeClass>")` 探测；通过 `ClassDB.instantiate` 创建实例，避免脚本在类不存在时直接报错。
+- **零外部依赖**：样例尽量不依赖项目根目录的 autoload/输入映射/主题；需要资源就放在 `addons/<plugin>/samples/assets/`。
+- **给出可验证预期**：在屏幕上显示 2~3 条“预期结果”（例如：已加载/输出字符串/退出码），用户不用读代码也能判断成功。
+- **为导出做准备**：若插件也要支持导出运行，建议提供 `template_release` 对应的库映射，并准备一个“导出后也能跑”的样例场景。
+
+### 最小 `sample_smoke` 脚本模式（可复用）
+
+在样例脚本里用“软依赖”验证：
+
+- `class_exists` 失败：提示用户去 `Project Settings` → `GDExtension` 启用 `.gdextension`
+- `instantiate` 失败：提示是 ABI/版本/库映射问题
+- 调用最小方法：尽早暴露绑定不匹配
 
 ## 工作流（通用版，按顺序执行）
 
@@ -164,6 +205,49 @@ windows.template_release.x86_64 = "res://addons/<plugin_name>/bin/win64/myext.wi
 
 “能 new 出来”不代表 ABI 对了；至少再调用 1 个方法，才能更早发现绑定错位。
 
+## Smoke Test（Headless，必须会跑）
+
+目标：在**不打开窗口**的情况下验证两件事：
+
+1) 扩展确实被启用并成功加载（`ClassDB.class_exists`）
+2) 关键 API 可调用（至少调用 1 个方法）
+
+最小 smoke 测试脚本（放到仓库里某个固定位置，例如 `tests/native_smoke/test_gdextension_smoke.gd`）：
+
+```gdscript
+extends SceneTree
+
+func _init() -> void:
+	var class_name := "MyExtension" # 改成你的 native 类名
+	if not ClassDB.class_exists(class_name):
+		push_error("GDExtension not enabled or failed to load: " + class_name)
+		quit(2)
+		return
+
+	var obj = ClassDB.instantiate(class_name)
+	if obj == null:
+		push_error("Failed to instantiate: " + class_name)
+		quit(3)
+		return
+
+	# 调一个最简单的方法，尽早发现绑定/ABI 问题
+	if obj.has_method("ping"):
+		var r = obj.call("ping")
+		print("ping() => ", r)
+
+	quit(0)
+```
+
+PowerShell 直接运行（不依赖仓库脚本时的兜底命令）：
+
+```powershell
+$godot = $env:GODOT_WIN_EXE  # 或者填绝对路径（建议 console 版）
+& $godot --headless --path E:\path\to\project --script E:\path\to\project\tests\native_smoke\test_gdextension_smoke.gd
+echo $LASTEXITCODE
+```
+
+如果仓库提供了测试运行器脚本（例如 `scripts/run_godot_tests.ps1`），用它来跑 smoke 测试通常更稳定（超时/环境隔离都已处理）。
+
 ## Windows（PowerShell + MSVC + SCons）推荐闭环（可复制）
 
 这一段是“通用可复用”的最佳实践，其他项目也可以照抄结构与约束：
@@ -236,6 +320,8 @@ windows.template_release.x86_64 = "res://addons/<plugin_name>/bin/win64/myext.wi
   - 结果：维护者无法复现构建；升级 Godot/工具链时只能靠猜
 - “提交了 DLL，但 `.gdextension` 映射没对上（路径/target/架构）”
   - 结果：用户侧依然报 `dynamic library not found`
+- “samples 放在仓库顶层或散落各处，发布插件时漏带”
+  - 结果：用户没法一键验收，反馈成本变高
 - “在 PowerShell 里随手用 `&&` 串命令”
 
 ## 附：ConPTY / Pipe 这类异步子系统的经验（可选，但很值）
@@ -245,3 +331,83 @@ windows.template_release.x86_64 = "res://addons/<plugin_name>/bin/win64/myext.wi
 - 不要假设“API 调用返回”就意味着资源已被异步进程 duplicate/接管完成。
 - Handle/FD 生命周期要保守：需要时延迟关闭，把关闭集中到 `close()` 做。
 - 先判断子进程是否存活，再判断管道是否有数据；否则会在错误方向上浪费很多时间。
+
+## Scripts（本 Skill 自带，可直接复用）
+
+位置：`scripts/`（在本 skill 目录内）。
+
+### 1) `scripts/init_gdextension_skeleton.py`：生成最小骨架
+
+用途：一次性创建最小可编译/可加载的 GDExtension 工程骨架（`native/` + `src/` + `SConstruct` + `.gdextension` + 一个 `ping()` 类）。
+
+示例：
+
+```powershell
+$SkillDir = Join-Path $env:USERPROFILE ".agents\\skills\\godot-gdextension-cpp-101"
+python (Join-Path $SkillDir "scripts\\init_gdextension_skeleton.py") `
+  --project-root E:\development\YourGodotProject `
+  --plugin-name your_plugin `
+  --ext-name myext
+```
+
+安全：默认**不覆盖**已有文件；若要覆盖需显式传 `--force`。
+
+### 2) `scripts/build_gdextension_windows.ps1`：Windows 构建闭环
+
+用途：在 Windows 上完成：
+
+1) 用 Godot 生成 `extension_api.json`（`--dump-extension-api`）
+2) 必要时触发 godot-cpp 绑定生成（首次 / `-RegenBindings`）
+3) 进入 MSVC 环境并运行 SCons 构建（`template_debug` / `template_release`）
+
+示例（只编 debug）：
+
+```powershell
+$SkillDir = Join-Path $env:USERPROFILE ".agents\\skills\\godot-gdextension-cpp-101"
+pwsh -NoProfile -File (Join-Path $SkillDir "scripts\\build_gdextension_windows.ps1") `
+  -NativeDir E:\development\YourGodotProject\addons\your_plugin\native `
+  -GodotExe "E:\Godot_v4.6-stable_win64.exe\Godot_v4.6-stable_win64_console.exe"
+```
+
+示例（debug + release，且强制重生成绑定）：
+
+```powershell
+$SkillDir = Join-Path $env:USERPROFILE ".agents\\skills\\godot-gdextension-cpp-101"
+pwsh -NoProfile -File (Join-Path $SkillDir "scripts\\build_gdextension_windows.ps1") `
+  -NativeDir E:\development\YourGodotProject\addons\your_plugin\native `
+  -GodotExe "E:\Godot_v4.6-stable_win64.exe\Godot_v4.6-stable_win64_console.exe" `
+  -All `
+  -RegenBindings
+```
+
+前置条件：
+- `scons` 可用（`python -m pip install --user -U scons`）
+- MSVC Build Tools 已安装（脚本会尝试用 `vswhere` 找到 `VsDevCmd.bat`）
+- `native/thirdparty/godot-cpp/SConstruct` 存在（submodule 或 junction 均可）
+
+建议配套（让命令更短、更少出错）：
+
+```powershell
+# 建议提前设置一次，后续脚本/测试都能复用
+$env:GODOT_WIN_EXE="E:\Godot_v4.6-stable_win64.exe\Godot_v4.6-stable_win64_console.exe"
+```
+
+### 3) `scripts/run_godot_tests.ps1`：Headless 测试运行器模板（参考）
+
+用途：提供一个通用的 Windows/PowerShell 版 headless 测试运行器模板，解决常见痛点：
+
+- 自动加 `--headless` 与 `--rendering-driver dummy`
+- 可跑单个测试（`-One`）或按目录跑 suite（`-Suite` / `-SuiteDir`）
+- 通过 `APPDATA/LOCALAPPDATA/USERPROFILE` 重定向，把 Godot 的 `user://` 隔离到项目内 `./.godot-user/`，避免污染真实用户目录
+- 支持超时（`-TimeoutSec` / `GODOT_TEST_TIMEOUT_SEC`）
+
+用法（从 skill 里直接运行）：
+
+```powershell
+$SkillDir = Join-Path $env:USERPROFILE ".agents\\skills\\godot-gdextension-cpp-101"
+pwsh -NoProfile -File (Join-Path $SkillDir "scripts\\run_godot_tests.ps1") `
+  -ProjectRoot E:\development\YourGodotProject `
+  -Suite all
+```
+
+建议：把它复制到你的仓库 `scripts/run_godot_tests.ps1` 后再按项目 suite 结构微调（这样团队/CI 用起来最顺手）。
