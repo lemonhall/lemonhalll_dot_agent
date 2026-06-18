@@ -266,6 +266,33 @@ echo $LASTEXITCODE
 - SCons 默认就是增量；不要频繁清理 `build/`（会导致全量重编 + 更慢的绑定生成）。
 - Godot 升级后需要重生成绑定（常见症状：能编译但运行崩 / 缺符号 / 行为异常）。
 
+### 增量编译自检：为什么每次都在“全量编译”？
+
+如果你感觉“每次跑脚本都把所有 `.cpp/.c` 重新编一遍”，先不要猜原因，按下面步骤把边界定出来：
+
+1) **连跑两次构建，看第二次是否应为 no-op**
+   - 第一次：正常跑脚本/命令（会生成 `.sconsign.dblite` / `.obj` 等缓存）。
+   - 第二次：不改任何源码，立刻再跑一次。
+   - 预期：第二次应主要输出 *“up to date / nothing to be done”*（或只编极少数文件）。
+
+2) **检查 wrapper 脚本是否每次都强制触发“非增量动作”**
+   - 是否每次都传了 `generate_bindings=yes`（等价“重生成 godot-cpp 绑定”，通常会非常慢）。
+   - 是否每次都跑了 `Godot --dump-extension-api` 并覆盖写 `extension_api.json`（即使内容不变，时间戳也会改变，可能导致 rebuild）。
+   - 是否每次都在构建前清理了输出目录（例如 `Remove-Item .../build`、`git clean`、删除 `.sconsign.dblite`）。
+
+   建议：脚本里显式打印这几个判断（例如 `needApiDump/needBindings`），并把实际执行的 `scons ...` 命令完整打印出来，避免“看起来没做但其实做了”。
+
+3) **用 SCons 的 explain 模式找出“为什么重编”**
+   - 在第二次构建时加上 explain 输出（示例）：
+     ```powershell
+     scons --debug=explain -Q platform=windows target=template_debug arch=x86_64 custom_api_file="...\extension_api.json"
+     ```
+   - 观察每个目标被判定为 out-of-date 的理由（常见是：命令行参数变化、输入文件时间戳变化、缓存文件缺失/被清理、编译器路径/flags 变化）。
+
+4) **关键结论：增量依赖“缓存文件必须持久化”**
+   - `.sconsign.dblite`、对象文件目录等必须在两次构建之间保留；不要每次跑脚本都删掉它们。
+   - 这些文件应当被 `.gitignore` 忽略（不应提交进 git），但必须在本机/CI 构建目录里存在并可写。
+
 ## 常见错误与排查（按优先级）
 
 ### “dynamic library not found”

@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "name": "meta-loop",
+  "displayName": "元循环",
+  "description": "评估任何“产出 → 检查 → 修复 → 复查”循环是否设计良好，例如验证循环、评审循环、maker/checker、评价器-优化器、agent 自评循环；也可按 9 步设计一个新循环。包含 10 维质量评分表，方法基础来自 TDD、Reflexion、LLM-as-judge、过程监督和 agentic workflow 研究。",
+  "version": "0.1.0-cn.1",
+  "maturity": "experimental",
+  "categories": ["workflow", "review", "ai"],
+  "tags": [
+    "loop",
+    "verification",
+    "review",
+    "maker-checker",
+    "evaluator-optimizer",
+    "llm-as-judge",
+    "self-review",
+    "meta-methodology",
+    "rubric",
+    "中文"
+  ],
+  "authors": [
+    {
+      "name": "Qiongyu Li"
+    },
+    {
+      "name": "Chinese translation by Codex"
+    }
+  ],
+  "entrypoints": {
+    "skillDoc": "SKILL.md",
+    "changelog": "CHANGELOG.md"
+  },
+  "requirements": {
+    "network": "none"
+  },
+  "capabilities": {
+    "shell": false,
+    "network": false,
+    "filesystemRead": false,
+    "filesystemWrite": false
+  }
+}

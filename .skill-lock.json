@@ -81,6 +81,35 @@
       "skillFolderHash": "007940e80de6ae577a87b2b343b1a5eae715df2b",
       "installedAt": "2026-02-11T02:37:25.622Z",
       "updatedAt": "2026-02-11T02:37:25.622Z"
+    },
+    "supabase-postgres-best-practices": {
+      "source": "supabase/agent-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/supabase/agent-skills.git",
+      "skillPath": "skills/supabase-postgres-best-practices/SKILL.md",
+      "skillFolderHash": "95fe6d29daaf88aa9bc3b505ca4defe19ceabf92",
+      "pluginName": "postgres-best-practices",
+      "installedAt": "2026-04-04T04:47:04.967Z",
+      "updatedAt": "2026-04-04T04:47:04.967Z"
+    },
+    "trump-perspective": {
+      "source": "alchaincyf/trump-skill",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/alchaincyf/trump-skill.git",
+      "skillPath": "SKILL.md",
+      "skillFolderHash": "ffdd374930fc240be0499c64b3eca0125b5f60ef",
+      "installedAt": "2026-04-08T11:13:42.896Z",
+      "updatedAt": "2026-04-08T11:13:42.896Z"
+    },
+    "xlsx": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/xlsx/SKILL.md",
+      "skillFolderHash": "f5fb1cdb7993b2feee8367e983e9d4d58d2eedd4",
+      "pluginName": "document-skills",
+      "installedAt": "2026-04-22T00:28:07.487Z",
+      "updatedAt": "2026-04-22T00:31:38.338Z"
     }
   },
   "dismissed": {
@@ -88,10 +117,16 @@
   },
   "lastSelectedAgents": [
     "amp",
+    "antigravity",
+    "cline",
     "codex",
+    "cursor",
+    "deepagents",
+    "firebender",
     "gemini-cli",
     "github-copilot",
     "kimi-cli",
-    "opencode"
+    "opencode",
+    "warp"
   ]
 }

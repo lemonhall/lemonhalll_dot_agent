@@ -274,6 +274,7 @@ The script:
 - Generates a SKILL.md template with proper frontmatter and TODO placeholders
 - Creates example resource directories: `scripts/`, `references/`, and `assets/`
 - Adds example files in each directory that can be customized or deleted
+- Writes generated text files as explicit `UTF-8`; do not rely on platform default encoding on Windows
 
 After initialization, customize or remove the generated SKILL.md and example files as needed.
 
@@ -297,6 +298,8 @@ To begin implementation, start with the reusable resources identified above: `sc
 Added scripts must be tested by actually running them to ensure there are no bugs and that the output matches what is expected. If there are many similar scripts, only a representative sample needs to be tested to ensure confidence that they all work while balancing time to completion.
 
 Any example files and directories not needed for the skill should be deleted. The initialization script creates example files in `scripts/`, `references/`, and `assets/` to demonstrate structure, but most skills won't need all of them.
+
+On Windows, keep every generated `.md`, `.py`, `.txt`, `.yaml`, and `.yml` file in explicit `UTF-8`. If you patch `init_skill.py` or `quick_validate.py`, keep their file reads and writes explicit as well.
 
 #### Update SKILL.md
 
