@@ -1,0 +1,4 @@
+interface:
+  display_name: "Isolate Python Projects on E Drive"
+  short_description: "Keep uv Python projects and caches on the E drive"
+  default_prompt: "Use $isolating-python-projects-on-e-drive to create an isolated uv Python project on E drive."
