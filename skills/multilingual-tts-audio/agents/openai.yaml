@@ -1,0 +1,4 @@
+interface:
+  display_name: "多语言 TTS 音频"
+  short_description: "批量生成、校验并接入可离线播放的本地多语言语音和发音文件"
+  default_prompt: "使用 $multilingual-tts-audio 为这些 UTF-8 文本生成可离线播放的多语言 MP3。"
